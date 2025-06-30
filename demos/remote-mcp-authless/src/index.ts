@@ -3,9 +3,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 // Define the environment variables, especially the secret for Google Auth
-interface Env {
-  GOOGLE_SERVICE_ACCOUNT_JSON: string;
-}
+// interface Env {
+//   GOOGLE_SERVICE_ACCOUNT_JSON: string;
+// }
 
 // Helper function to get a Google Auth Access Token from a service account
 // This uses a lightweight, zero-dependency JWT implementation suitable for Cloudflare Workers.
@@ -91,10 +91,11 @@ export class MyGA4Reporter extends McpAgent<Env> {
         ).describe("Array of date ranges for the report"),
       },
       // The async handler that executes when the tool is called
-      async (params, { env }) => {
+      async (params, { env: ENV }) => {
         try {
           // 1. Get the access token using the service account secret
-          const accessToken = await getGoogleAuthToken(env.GOOGLE_SERVICE_ACCOUNT_JSON);
+
+          const accessToken = await getGoogleAuthToken("env.GOOGLE_SERVICE_ACCOUNT_JSON");
           
           // 2. Construct the request body for the GA4 Data API
           const requestBody = {
