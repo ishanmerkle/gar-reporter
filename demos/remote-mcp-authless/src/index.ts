@@ -3,9 +3,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 // Define the environment variables, especially the secret for Google Auth
- interface Env {
-   GOOGLE_SERVICE_ACCOUNT_JSON: string;
- }
+interface Env {
+  GOOGLE_SERVICE_ACCOUNT_JSON: string;
+}
 
 // Helper function to get a Google Auth Access Token from a service account
 // This uses a lightweight, zero-dependency JWT implementation suitable for Cloudflare Workers.
@@ -131,17 +131,20 @@ export class MyGA4Reporter extends McpAgent<Env> {
           if (!report.rows || report.rows.length === 0) {
               return { content: [{ type: "text", text: "The report returned no data." }] };
           }
-
-          const dimensionHeaders = report.dimensionHeaders.map(h => h.name);
-          const metricHeaders = report.metricHeaders.map(h => h.name);
+          
+          // FIX: Safely handle potentially undefined header arrays.
+          // If the API response doesn't contain a key (e.g., no dimensions requested), default to an empty array.
+          const dimensionHeaders = (report.dimensionHeaders || []).map(h => h.name);
+          const metricHeaders = (report.metricHeaders || []).map(h => h.name);
           const allHeaders = [...dimensionHeaders, ...metricHeaders];
 
           let markdownTable = `| ${allHeaders.join(' | ')} |\n`;
           markdownTable += `|${allHeaders.map(() => '---').join('|')}|\n`;
 
           for (const row of report.rows) {
-              const dimValues = row.dimensionValues.map(v => v.value);
-              const metValues = row.metricValues.map(v => v.value);
+              // Also handle cases where dimensionValues or metricValues might be missing from a row
+              const dimValues = (row.dimensionValues || []).map(v => v.value);
+              const metValues = (row.metricValues || []).map(v => v.value);
               const allValues = [...dimValues, ...metValues];
               markdownTable += `| ${allValues.join(' | ')} |\n`;
           }
@@ -150,8 +153,9 @@ export class MyGA4Reporter extends McpAgent<Env> {
 
         } catch (error) {
           console.error("Error in run_ga4_report tool:", error);
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
           return {
-            content: [{ type: "text", text: `An internal error occurred: ${error.message}` }],
+            content: [{ type: "text", text: `An internal error occurred: ${errorMessage}` }],
             isError: true,
           };
         }
