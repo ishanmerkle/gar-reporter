@@ -3,9 +3,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 // Define the environment variables, especially the secret for Google Auth
-// interface Env {
-//   GOOGLE_SERVICE_ACCOUNT_JSON: string;
-// }
+ interface Env {
+   GOOGLE_SERVICE_ACCOUNT_JSON: string;
+ }
 
 // Helper function to get a Google Auth Access Token from a service account
 // This uses a lightweight, zero-dependency JWT implementation suitable for Cloudflare Workers.
