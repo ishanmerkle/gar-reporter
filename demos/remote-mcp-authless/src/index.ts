@@ -91,7 +91,7 @@ export class MyGA4Reporter extends McpAgent<Env> {
         ).describe("Array of date ranges for the report"),
       },
       // The async handler that executes when the tool is called
-      async (params, { env: ENV }) => {
+      async (params, { env }) => {
         try {
           // 1. Get the access token using the service account secret
 
